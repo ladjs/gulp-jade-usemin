@@ -1,0 +1,26 @@
+{
+  "name": "gulp-jade-usemin",
+  "version": "0.0.1",
+  "description": "Gulp plugin for running usemin on Jade files",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gdi2290/gulp-jade-usemin.git"
+  },
+  "keywords": [
+    "gulpplugin",
+    "jade",
+    "usemin",
+    "build",
+    "minify"
+  ],
+  "author": "gdi2290 <github@gdi2290.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gdi2290/gulp-jade-usemin/issues"
+  },
+  "homepage": "https://github.com/gdi2290/gulp-jade-usemin"
+}
