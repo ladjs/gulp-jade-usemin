@@ -17,7 +17,10 @@
     "build",
     "minify"
   ],
-  "author": "gdi2290 <github@gdi2290.com>",
+  "contributors": [
+    "gdi2290 <github@gdi2290.com>",
+    "Nick Baugh <niftylettuce@gmail.com>"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/gdi2290/gulp-jade-usemin/issues"
