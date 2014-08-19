@@ -11,8 +11,8 @@ module.exports = function(options) {
 
   var startReg = /<!--\s*build:(\w+)(?:\(([^\)]+?)\))?\s+(\/?([^\s]+?))\s*-->/gim;
   var endReg = /<!--\s*endbuild\s*-->/gim;
-  var jsReg = /script.+src\s*=\s*['"]([^"']+)['"]/mi;
-  var cssReg = /link.+href\s*=\s*['"]([^"']+)['"]/mi;
+  var jsReg = /script.+src\s*=\s*['"]([^"']+)['"]/gim;
+  var cssReg = /link.+href\s*=\s*['"]([^"']+)['"]/gim;
   var basePath, mainPath, mainName, alternatePath;
 
   function createFile(name, content) {
@@ -29,7 +29,6 @@ module.exports = function(options) {
   function getFiles(content, reg) {
     var paths = [];
     var files = [];
-
     content
       .replace(/<!--(?:(?:.|\r|\n)*?)-->/gim, '')
       .replace(reg, function (a, b) {
@@ -110,7 +109,6 @@ module.exports = function(options) {
       if (sections[i].match(startReg)) {
         var section = sections[i].split(startReg);
         alternatePath = section[2];
-
         jade.push(section[0]);
 
         if (getBlockType(section[5]) === 'js') {
