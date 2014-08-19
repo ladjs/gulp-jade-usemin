@@ -1,6 +1,6 @@
 {
   "name": "gulp-jade-usemin",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Gulp plugin for running usemin on Jade files",
   "main": "index.js",
   "scripts": {
@@ -22,5 +22,10 @@
   "bugs": {
     "url": "https://github.com/gdi2290/gulp-jade-usemin/issues"
   },
-  "homepage": "https://github.com/gdi2290/gulp-jade-usemin"
+  "homepage": "https://github.com/gdi2290/gulp-jade-usemin",
+  "dependencies": {
+    "glob": "^4.0.5",
+    "gulp-util": "^3.0.0",
+    "through2": "^0.6.1"
+  }
 }
