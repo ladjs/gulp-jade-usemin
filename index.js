@@ -53,7 +53,7 @@ module.exports = function(options) {
     for (var i = 0, l = paths.length; i < l; ++i) {
       var filepaths = glob.sync(paths[i]);
       if(filepaths[0] === undefined) {
-        throw new gutil.PluginError('gulp-usemin', 'Path ' + paths[i] + ' not found!');
+        throw new gutil.PluginError('gulp-jade-usemin', 'Path ' + paths[i] + ' not found!');
       }
       filepaths.forEach(function (filepath) {
         files.push(new gutil.File({
@@ -114,28 +114,40 @@ module.exports = function(options) {
     var jade = [];
     var sections = content.split(endReg);
 
-    for (var i = 0, l = sections.length; i < l; ++i)
+    for (var i = 0, l = sections.length; i < l; ++i) {
       if (sections[i].match(startReg)) {
         var section = sections[i].split(startReg);
         alternatePath = section[2];
+
         jade.push(section[0]);
 
-        if (getBlockType(section[5]) === 'js') {
-          process(section[4], getFiles(section[5], jsReg), section[1], function(name, file) {
-            push(file);
-            if (path.extname(file.path) === '.js')
-              jade.push('script(src="' + name.replace(path.basename(name), path.basename(file.path)) + '")');
-          }.bind(this, section[3]));
-        } else {
-          process(section[4], getFiles(section[5], cssReg), section[1], function(name, file) {
-            push(file);
-            jade.push('link(rel="stylesheet", href="' + name.replace(path.basename(name), path.basename(file.path)) + '")');
-          }.bind(this, section[3]));
+        var startCondLine = section[5].match(startCondReg);
+        var endCondLine = section[5].match(endCondReg);
+        if (startCondLine && endCondLine)
+          jade.push(startCondLine[0]);
+
+        if (section[1] !== 'remove') {
+          if (getBlockType(section[5]) == 'js') {
+            process(section[4], getFiles(section[5], jsReg), section[1], function(name, file) {
+              push(file);
+              if (path.extname(file.path) == '.js')
+                jade.push('script(src="' + name.replace(path.basename(name), path.basename(file.path)) + '")');
+            }.bind(this, section[3]));
+          } else {
+            process(section[4], getFiles(section[5], cssReg), section[1], function(name, file) {
+              push(file);
+              jade.push('link(rel="stylesheet", href="' + name.replace(path.basename(name), path.basename(file.path)) + '")');
+            }.bind(this, section[3]));
+          }
+        }
+
+        if (startCondLine && endCondLine) {
+          jade.push(endCondLine[0]);
         }
       } else {
         jade.push(sections[i]);
       }
-
+    }
     process(mainName, [createFile(mainName, jade.join(''))], 'jade', function(file) {
       push(file);
       callback();
@@ -146,10 +158,12 @@ module.exports = function(options) {
     if (file.isNull()) {
       this.push(file); // Do nothing if no contents
       callback();
-    } else if (file.isStream()) {
+    }
+    else if (file.isStream()) {
       this.emit('error', new gutil.PluginError('gulp-jade-usemin', 'Streams are not supported!'));
       callback();
-    } else {
+    }
+    else {
       basePath = file.base;
       mainPath = path.dirname(file.path);
       mainName = path.basename(file.path);
