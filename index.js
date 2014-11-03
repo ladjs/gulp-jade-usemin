@@ -8,18 +8,25 @@ var glob = require('glob');
 
 module.exports = function(options) {
   options = options || {};
-
-  var startReg = /<!--\s*build:(\w+)(?:\(([^\)]+?)\))?\s+(\/?([^\s]+?))\s*-->/gim;
+  var startReg = /<!--\s*build:(\w+)(?:\(([^\)]+?)\))?\s+(\/?([^\s]+?))?\s*-->/gim;
   var endReg = /<!--\s*endbuild\s*-->/gim;
-  var jsReg = /script.+src\s*=\s*['"]([^"']+)['"]/gim;
-  var cssReg = /link.+href\s*=\s*['"]([^"']+)['"]/gim;
+  var jsReg = /<\s*script\s+.*?src\s*=\s*("|')([^"']+?)\1.*?><\s*\/\s*script\s*>/gi;
+  var cssReg = /<\s*link\s+.*?href\s*=\s*("|')([^"']+)\1.*?>/gi;
+  var startCondReg = /<!--\[[^\]]+\]>/gim;
+  var endCondReg = /<!\[endif\]-->/gim;
   var basePath, mainPath, mainName, alternatePath;
 
   function createFile(name, content) {
+    var filePath = path.join(path.relative(basePath, mainPath), name)
+      var isStatic = name.split('.').pop() === 'js' || name.split('.').pop() === 'css'
+
+      if (options.outputRelativePath && isStatic)
+        filePath = options.outputRelativePath + name;
+
     return new gutil.File({
-      path: path.join(path.relative(basePath, mainPath), name),
+      path: filePath,
       contents: new Buffer(content)
-    });
+    })
   }
 
   function getBlockType(content) {
@@ -29,27 +36,31 @@ module.exports = function(options) {
   function getFiles(content, reg) {
     var paths = [];
     var files = [];
-    content
-      .replace(/<!--(?:(?:.|\r|\n)*?)-->/gim, '')
-      .replace(reg, function (a, b) {
-        var filePath = path.resolve(path.join(alternatePath || mainPath, b));
 
-        if (options.assetsDir) {
+    content
+      .replace(startCondReg, '')
+      .replace(endCondReg, '')
+      .replace(/<!--(?:(?:.|\r|\n)*?)-->/gim, '')
+      .replace(reg, function (a, quote, b) {
+        var filePath = path.resolve(path.join(alternatePath || options.path || mainPath, b));
+
+        if (options.assetsDir)
           filePath = path.resolve(path.join(options.assetsDir, path.relative(basePath, filePath)));
-        }
 
         paths.push(filePath);
       });
 
     for (var i = 0, l = paths.length; i < l; ++i) {
-      var filepath = glob.sync(paths[i])[0];
-      if (filepath === undefined) {
-        throw new gutil.PluginError('gulp-jade-usemin', 'Path ' + paths[i] + ' not found!');
+      var filepaths = glob.sync(paths[i]);
+      if(filepaths[0] === undefined) {
+        throw new gutil.PluginError('gulp-usemin', 'Path ' + paths[i] + ' not found!');
       }
-      files.push(new gutil.File({
-        path: filepath,
-        contents: fs.readFileSync(filepath)
-      }));
+      filepaths.forEach(function (filepath) {
+        files.push(new gutil.File({
+          path: filepath,
+          contents: fs.readFileSync(filepath)
+        }));
+      });
     }
 
     return files;
@@ -68,15 +79,15 @@ module.exports = function(options) {
   function processTask(index, tasks, name, files, callback) {
     var newFiles = [];
 
-    function write(file) {
-      newFiles.push(file);
-    }
-
-    if (tasks[index] === 'concat') {
+    if (tasks[index] == 'concat') {
       newFiles = [concat(files, name)];
-    } else {
+    }
+    else {
       var stream = tasks[index];
 
+      function write(file) {
+        newFiles.push(file);
+      }
 
       stream.on('data', write);
       files.forEach(function(file) {
@@ -85,18 +96,16 @@ module.exports = function(options) {
       stream.removeListener('data', write);
     }
 
-    if (tasks[++index]) {
+    if (tasks[++index])
       processTask(index, tasks, name, newFiles, callback);
-    } else {
+    else
       newFiles.forEach(callback);
-    }
   }
 
   function process(name, files, pipelineId, callback) {
     var tasks = options[pipelineId] || [];
-    if (tasks.indexOf('concat') === -1) {
+    if (tasks.indexOf('concat') == -1)
       tasks.unshift('concat');
-    }
 
     processTask(0, tasks, name, files, callback);
   }
