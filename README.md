@@ -40,7 +40,7 @@ block stylesheets
   link(rel='stylesheet', href='/css/style.css')
 //- endbuild
 
-//-  build:js /js/app.js
+//- build:js /js/app.js
 block scripts
     script(src='/js/script1.js')
     script(src='/js/script2.js')
@@ -48,6 +48,11 @@ block scripts
 ```
 
 ## Changelog
+
+#####1.0.0
+- added `video` and img support
+- support `append` and `prepend`
+- jade style syntax
 
 #####0.0.1
 - initial release
