@@ -1,5 +1,6 @@
 var path = require('path');
 var fs = require('fs');
+var finder = require('fs-finder');
 var EOL = require('os').EOL;
 
 var through = require('through2');
@@ -14,6 +15,9 @@ module.exports = function(options) {
   var cssReg = /link.+href\s*=\s*['"]([^"']+)['"]/gim;
   var startCondReg = /<!--\[[^\]]+\]>/gim;
   var endCondReg = /<!\[endif\]-->/gim;
+  var patterns = [
+    /img.+src\s*=\s*['"]([^"']+)['"]/gim
+  ];
   var basePath, mainPath, mainName, alternatePath;
 
   function createFile(name, content) {
@@ -145,6 +149,18 @@ module.exports = function(options) {
           jade.push(endCondLine[0]);
         }
       } else {
+        patterns.forEach(function(pattern){
+          sections[i].replace(pattern, function(match, src){
+            var masked = src.replace(path.extname(src), '.*' + path.extname(src));
+            if(options.assetsDir){
+              var file = finder.from(options.assetsDir).findFirst().findFiles(masked);
+              if(file) {
+                var revved = file.replace(options.assetsDir, '');
+                sections[i] = sections[i].replace(src, revved);
+              }
+            }
+          });
+        });
         jade.push(sections[i]);
       }
     }
