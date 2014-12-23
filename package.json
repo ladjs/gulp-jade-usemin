@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/gdi2290/gulp-jade-usemin",
   "dependencies": {
+    "fs-finder": "^1.8.0",
     "glob": "^4.0.5",
     "gulp-util": "^3.0.0",
     "through2": "^0.6.1"
