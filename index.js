@@ -8,8 +8,8 @@ var glob = require('glob');
 
 module.exports = function(options) {
   options = options || {};
-  var startReg = /<!--\s*build:(\w+)(?:\(([^\)]+?)\))?\s+(\/?([^\s]+?))?\s*-->/gim;
-  var endReg = /<!--\s*endbuild\s*-->/gim;
+  var startReg = /\/\/-\s*build:(\w+)(?:\(([^\)]+?)\))?\s+(\/?([^\s]+?))?\s*$/gim;
+  var endReg = /\/\/-\s*endbuild\s*$/gim;
   var jsReg = /script.+src\s*=\s*['"]([^"']+)['"]/gim;
   var cssReg = /link.+href\s*=\s*['"]([^"']+)['"]/gim;
   var startCondReg = /<!--\[[^\]]+\]>/gim;
