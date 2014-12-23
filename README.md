@@ -32,6 +32,20 @@ gulp.task('usemin', function() {
 });
 ```
 
+Sample usage in Jade file:
+
+```
+//- build:css /css/app.css
+block stylesheets
+  link(rel='stylesheet', href='/css/style.css')
+//- endbuild
+
+//-  build:js /js/app.js
+block scripts
+    script(src='/js/script1.js')
+    script(src='/js/script2.js')
+//- endbuild
+```
 
 ## Changelog
 
