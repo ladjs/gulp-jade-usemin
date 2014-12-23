@@ -23,8 +23,8 @@ module.exports = function(options) {
   var basePath, mainPath, mainName, alternatePath;
 
   function createFile(name, content) {
-    var filePath = path.join(path.relative(basePath, mainPath), name)
-      var isStatic = name.split('.').pop() === 'js' || name.split('.').pop() === 'css'
+    var filePath = path.join(path.relative(basePath, mainPath), name);
+      var isStatic = name.split('.').pop() === 'js' || name.split('.').pop() === 'css';
 
       if (options.outputRelativePath && isStatic)
         filePath = options.outputRelativePath + name;
@@ -32,7 +32,7 @@ module.exports = function(options) {
     return new gutil.File({
       path: filePath,
       contents: new Buffer(content)
-    })
+    });
   }
 
   function getBlockType(content) {
@@ -85,21 +85,21 @@ module.exports = function(options) {
   function processTask(index, tasks, name, files, callback) {
     var newFiles = [];
 
+    function writeNewFile(file) {
+      newFiles.push(file);
+    }
+
     if (tasks[index] == 'concat') {
       newFiles = [concat(files, name)];
     }
     else {
       var stream = tasks[index];
 
-      function write(file) {
-        newFiles.push(file);
-      }
-
-      stream.on('data', write);
+      stream.on('data', writeNewFile);
       files.forEach(function(file) {
         stream.write(file);
       });
-      stream.removeListener('data', write);
+      stream.removeListener('data', writeNewFile);
     }
 
     if (tasks[++index])
