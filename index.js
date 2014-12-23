@@ -145,6 +145,8 @@ module.exports = function(options) {
           jade.push(endCondLine[0]);
         }
       } else {
+        sections[i] = sections[i].replace(/(append|prepend) scripts/gi, 'block scripts');
+        sections[i] = sections[i].replace(/(append|prepend) stylesheets/gi, 'block stylesheets');
         jade.push(sections[i]);
       }
     }
