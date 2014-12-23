@@ -34,7 +34,7 @@ gulp.task('usemin', function() {
 
 Sample usage in Jade file:
 
-```
+```jade
 //- build:css /css/app.css
 block stylesheets
   link(rel='stylesheet', href='/css/style.css')
