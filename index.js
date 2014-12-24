@@ -154,7 +154,7 @@ module.exports = function(options) {
               push(file);
               name = options.outputRelativePath ? path.join(options.outputRelativePath, name) : name;
               if (path.extname(file.path) == '.js')
-                jade.push('link( ' + renderAttributes(section[5], name.replace(path.basename(name), path.basename(file.path))) + ' )');
+                jade.push('srcipt( ' + renderAttributes(section[5], name.replace(path.basename(name), path.basename(file.path))) + ' )');
             }.bind(this, section[3]));
           } else {
             process(section[4], getFiles(section[5], cssReg), section[1], function(name, file) {
