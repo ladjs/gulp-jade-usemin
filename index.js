@@ -136,13 +136,16 @@ module.exports = function(options) {
           if (getBlockType(section[5]) == 'js') {
             process(section[4], getFiles(section[5], jsReg), section[1], function(name, file) {
               push(file);
+              name = options.outputRelativePath ? path.join(options.outputRelativePath, name) : name;
               if (path.extname(file.path) == '.js')
                 jade.push('script(src="' + name.replace(path.basename(name), path.basename(file.path)) + '")');
             }.bind(this, section[3]));
           } else {
             process(section[4], getFiles(section[5], cssReg), section[1], function(name, file) {
               push(file);
-              jade.push('link(rel="stylesheet", href="' + name.replace(path.basename(name), path.basename(file.path)) + '")');
+              name = options.outputRelativePath ? path.join(options.outputRelativePath, name) : name;
+              if (path.extname(file.path) == '.css')
+                jade.push('link(rel="stylesheet", href="' + name.replace(path.basename(name), path.basename(file.path)) + '")');
             }.bind(this, section[3]));
           }
         }
@@ -157,7 +160,7 @@ module.exports = function(options) {
             if(options.assetsDir){
               var file = finder.from(options.assetsDir).findFirst().findFiles(masked);
               if(file) {
-                var revved = file.replace(options.assetsDir, '');
+                var revved = file.replace(options.assetsDir, options.outputRelativePath ? options.outputRelativePath : '');
                 sections[i] = sections[i].replace(src, revved);
               }
             }
