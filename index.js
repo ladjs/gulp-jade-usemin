@@ -116,6 +116,22 @@ module.exports = function(options) {
     processTask(0, tasks, name, files, callback);
   }
 
+  function renderAttributes(content, url) {
+    var attributes = [];
+
+    if( getBlockType(content) === 'js' ){
+      attributes = content.match(/((?!src|type\b)\b\w+)=("[^<>"]*"|'[^<>']*'|\w+)/gi) || [];
+      attributes.push("src='" + url + "'");
+      attributes.push("type='text/javascript'");
+    } else if( getBlockType(content) === 'css'){
+      attributes = content.match(/((?!href|rel\b)\b\w+)=("[^<>"]*"|'[^<>']*'|\w+)/gi) || [];
+      attributes.push("href='" + url + "'");
+      attributes.push("rel='stylesheet'");
+    }
+
+    return attributes.join(", ");
+  }
+
   function processJade(content, push, callback) {
     var jade = [];
     var sections = content.split(endReg);
@@ -136,13 +152,16 @@ module.exports = function(options) {
           if (getBlockType(section[5]) == 'js') {
             process(section[4], getFiles(section[5], jsReg), section[1], function(name, file) {
               push(file);
+              name = options.outputRelativePath ? path.join(options.outputRelativePath, name) : name;
               if (path.extname(file.path) == '.js')
-                jade.push('script(src="' + name.replace(path.basename(name), path.basename(file.path)) + '")');
+                jade.push('srcipt( ' + renderAttributes(section[5], name.replace(path.basename(name), path.basename(file.path))) + ' )');
             }.bind(this, section[3]));
           } else {
             process(section[4], getFiles(section[5], cssReg), section[1], function(name, file) {
               push(file);
-              jade.push('link(rel="stylesheet", href="' + name.replace(path.basename(name), path.basename(file.path)) + '")');
+              name = options.outputRelativePath ? path.join(options.outputRelativePath, name) : name;
+              if (path.extname(file.path) === '.css')
+                jade.push('link( ' + renderAttributes(section[5], name.replace(path.basename(name), path.basename(file.path))) + ' )');
             }.bind(this, section[3]));
           }
         }
@@ -157,7 +176,7 @@ module.exports = function(options) {
             if(options.assetsDir){
               var file = finder.from(options.assetsDir).findFirst().findFiles(masked);
               if(file) {
-                var revved = file.replace(options.assetsDir, '');
+                var revved = file.replace(options.assetsDir, options.outputRelativePath ? options.outputRelativePath : '');
                 sections[i] = sections[i].replace(src, revved);
               }
             }
