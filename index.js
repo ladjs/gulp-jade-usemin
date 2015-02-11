@@ -175,7 +175,7 @@ module.exports = function(options) {
         }
       } else {
         patterns.forEach(function(pattern) {
-          sections[i].replace(pattern, function(match, src){
+          sections[i].replace(pattern, function(match, src) {
             var masked = src.replace(path.extname(src), '.*' + path.extname(src));
             if(options.assetsDir){
               var file = finder.from(options.assetsDir).findFirst().findFiles(masked);
@@ -186,8 +186,8 @@ module.exports = function(options) {
             }
           });
         });
-        sections[i] = sections[i].replace(/(append|prepend) scripts/gi, 'block scripts');
-        sections[i] = sections[i].replace(/(append|prepend) stylesheets/gi, 'block stylesheets');
+        //sections[i] = sections[i].replace(/(append|prepend) scripts/gi, 'block scripts');
+        //sections[i] = sections[i].replace(/(append|prepend) stylesheets/gi, 'block stylesheets');
         jade.push(sections[i]);
       }
     }
