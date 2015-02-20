@@ -21,6 +21,7 @@ module.exports = function(options) {
     /script.+src\s*=\s*['"]([^"']+)['"]/gim,
     /meta.+content\s*=\s*['"]([^"']+)['"]/gim,
     /data-src\s*=\s*['"]([^"']+)['"]/gim,
+    /data-at2x\s*=\s*['"]([^"']+)['"]/gim,
     /video.+src\s*=\s*['"]([^"']+)['"]/gim,
     /video.+poster\s*=\s*['"]([^"']+)['"]/gim
   ];
@@ -65,12 +66,15 @@ module.exports = function(options) {
       if(filepaths[0] === undefined) {
         throw new gutil.PluginError('gulp-jade-usemin', 'Path ' + paths[i] + ' not found!');
       }
-      filepaths.forEach(function (filepath) {
-        files.push(new gutil.File({
-          path: filepath,
-          contents: fs.readFileSync(filepath)
-        }));
-      });
+      filepaths.forEach(pushFile)
+
+    }
+
+    function pushFile(filepath) {
+      files.push(new gutil.File({
+        path: filepath,
+        contents: fs.readFileSync(filepath)
+      }));
     }
 
     return files;
@@ -140,6 +144,33 @@ module.exports = function(options) {
     var jade = [];
     var sections = content.split(endReg);
 
+    function jsRegPush(name, file) {
+      push(file);
+      name = options.outputRelativePath ? path.join(options.outputRelativePath, name) : name;
+      if (path.extname(file.path) === '.js')
+        jade.push('script(' + renderAttributes(section[5], name.replace(path.basename(name), path.basename(file.path))) + ' )');
+    }
+
+    function cssRegPush(name, file) {
+      push(file);
+      name = options.outputRelativePath ? path.join(options.outputRelativePath, name) : name;
+      if (path.extname(file.path) === '.css')
+        jade.push('link(' + renderAttributes(section[5], name.replace(path.basename(name), path.basename(file.path))) + ' )');
+    }
+
+    function patternReplace(pattern) {
+      sections[i].replace(pattern, function(match, src) {
+        var masked = src.replace(path.extname(src), '.*' + path.extname(src));
+        if(options.assetsDir){
+          var file = finder.from(options.assetsDir).findFirst().findFiles(masked);
+          if(file) {
+            var revved = file.replace(options.assetsDir, options.outputRelativePath ? options.outputRelativePath : '');
+            sections[i] = sections[i].replace(src, revved);
+          }
+        }
+      });
+    }
+
     for (var i = 0, l = sections.length; i < l; ++i) {
       if (sections[i].match(startReg)) {
         var section = sections[i].split(startReg);
@@ -154,19 +185,9 @@ module.exports = function(options) {
 
         if (section[1] !== 'remove') {
           if (getBlockType(section[5]) === 'js') {
-            process(section[4], getFiles(section[5], jsReg), section[1], function(name, file) {
-              push(file);
-              name = options.outputRelativePath ? path.join(options.outputRelativePath, name) : name;
-              if (path.extname(file.path) === '.js')
-                jade.push('script(' + renderAttributes(section[5], name.replace(path.basename(name), path.basename(file.path))) + ' )');
-            }.bind(this, section[3]));
+            process(section[4], getFiles(section[5], jsReg), section[1], jsRegPush.bind(this, section[3]));
           } else {
-            process(section[4], getFiles(section[5], cssReg), section[1], function(name, file) {
-              push(file);
-              name = options.outputRelativePath ? path.join(options.outputRelativePath, name) : name;
-              if (path.extname(file.path) === '.css')
-                jade.push('link(' + renderAttributes(section[5], name.replace(path.basename(name), path.basename(file.path))) + ' )');
-            }.bind(this, section[3]));
+            process(section[4], getFiles(section[5], cssReg), section[1], cssRegPush.bind(this, section[3]));
           }
         }
 
@@ -174,23 +195,14 @@ module.exports = function(options) {
           jade.push(endCondLine[0]);
         }
       } else {
-        patterns.forEach(function(pattern) {
-          sections[i].replace(pattern, function(match, src) {
-            var masked = src.replace(path.extname(src), '.*' + path.extname(src));
-            if(options.assetsDir){
-              var file = finder.from(options.assetsDir).findFirst().findFiles(masked);
-              if(file) {
-                var revved = file.replace(options.assetsDir, options.outputRelativePath ? options.outputRelativePath : '');
-                sections[i] = sections[i].replace(src, revved);
-              }
-            }
-          });
-        });
+        patterns.forEach(patternReplace)
+
         //sections[i] = sections[i].replace(/(append|prepend) scripts/gi, 'block scripts');
         //sections[i] = sections[i].replace(/(append|prepend) stylesheets/gi, 'block stylesheets');
         jade.push(sections[i]);
       }
     }
+
     process(mainName, [createFile(mainName, jade.join(''))], 'jade', function(file) {
       push(file);
       callback();
