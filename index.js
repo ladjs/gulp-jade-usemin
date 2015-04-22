@@ -104,10 +104,12 @@ module.exports = function(options) {
       var stream = tasks[index];
 
       stream.on('data', writeNewFile);
+      stream.on('end', function() {
+        stream.removeListener('data', writeNewFile);
+      });
       files.forEach(function(file) {
         stream.write(file);
       });
-      stream.removeListener('data', writeNewFile);
     }
 
     if (tasks[++index])
