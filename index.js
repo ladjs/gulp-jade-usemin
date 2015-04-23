@@ -105,6 +105,10 @@ module.exports = function(options) {
     else {
       var stream = tasks[index];
 
+      if (options.maxListeners) {
+        stream.setMaxListeners(options.maxListeners);
+      }
+
       stream.on('data', writeNewFile);
       stream.on('end', function() {
         stream.removeListener('data', writeNewFile);
