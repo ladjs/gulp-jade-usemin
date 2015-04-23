@@ -41,7 +41,9 @@ module.exports = function(options) {
   }
 
   function getBlockType(content) {
-    return jsReg.test(content) ? 'js' : 'css';
+    var result = jsReg.test(content) ? 'js' : 'css';
+    jsReg.lastIndex = 0;
+    return result;
   }
 
   function getFiles(content, reg) {
