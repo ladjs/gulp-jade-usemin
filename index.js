@@ -16,14 +16,14 @@ module.exports = function(options) {
   var startCondReg = /<!--\[[^\]]+\]>/gim;
   var endCondReg = /<!\[endif\]-->/gim;
   var patterns = [
-    /img.+src\s*=\s*['"]([^"']+)['"]/gim,
-    /link.+href\s*=\s*['"]([^"']+)['"]/gim,
-    /script.+src\s*=\s*['"]([^"']+)['"]/gim,
-    /meta.+content\s*=\s*['"]([^"']+)['"]/gim,
-    /data-src\s*=\s*['"]([^"']+)['"]/gim,
-    /data-at2x\s*=\s*['"]([^"']+)['"]/gim,
-    /video.+src\s*=\s*['"]([^"']+)['"]/gim,
-    /video.+poster\s*=\s*['"]([^"']+)['"]/gim
+    /img.+src\s*=\s*['"]+([\.\/]+[^"']+)['"]/gim,
+    /link.+href\s*=\s*['"]+([\.\/]+[^"']+)['"]/gim,
+    /script.+src\s*=\s*['"]+([\.\/]+[^"']+)['"]/gim,
+    /meta.+content\s*=\s*['"]+([\.\/]+[^"']+)['"]/gim,
+    /data-src\s*=\s*['"]+([\.\/]+[^"']+)['"]/gim,
+    /data-at2x\s*=\s*['"]+([\.\/]+[^"']+)['"]/gim,
+    /video.+src\s*=\s*['"]+([\.\/]+[^"']+)['"]/gim,
+    /video.+poster\s*=\s*['"]+([\.\/]+[^"']+)['"]/gim
   ];
   var basePath, mainPath, mainName, alternatePath;
 
