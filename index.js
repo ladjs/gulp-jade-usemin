@@ -29,10 +29,15 @@ module.exports = function(options) {
 
   function createFile(name, content) {
     var filePath = path.join(path.relative(basePath, mainPath), name);
-      var isStatic = name.split('.').pop() === 'js' || name.split('.').pop() === 'css';
+    var isStatic = name.split('.').pop() === 'js' || name.split('.').pop() === 'css';
 
-      if (options.outputRelativePath && isStatic)
-        filePath = options.outputRelativePath + name;
+    if (isStatic) {
+      if (options.outputRelativePath)
+        filePath = path.join(options.outputRelativePath, name);
+
+      if (options.outputBasePath)
+        filePath = path.join(options.outputBasePath, filePath);
+    }
 
     return new gutil.File({
       path: filePath,
@@ -104,6 +109,10 @@ module.exports = function(options) {
     }
     else {
       var stream = tasks[index];
+
+      if (options.maxListeners) {
+        stream.setMaxListeners(options.maxListeners);
+      }
 
       stream.on('data', writeNewFile);
       stream.on('end', function() {

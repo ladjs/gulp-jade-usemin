@@ -49,6 +49,9 @@ block scripts
 
 ## Changelog
 
+### 1.1.1
+- added `outputBasePath` option, it makes possible to use absolute routes to static files in jade templates *independently* to the folder structure of views.
+
 ### 1.1.0
 - fixed RegExp issue, now requires you to have a `/` or `.` as first character in your rev replacement (e.g. you need to have relative or absolute paths via `script(src='/foo.js')` as opposed to `script(src='foo.js')`)
 
