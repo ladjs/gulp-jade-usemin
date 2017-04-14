@@ -105,6 +105,9 @@ module.exports = function(options) {
     else {
       var stream = tasks[index];
 
+      stream.on('error', function(err) {
+        throw err;
+      });
       stream.on('data', writeNewFile);
       stream.on('end', function() {
         stream.removeListener('data', writeNewFile);
