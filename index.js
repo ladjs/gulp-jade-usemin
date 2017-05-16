@@ -114,7 +114,8 @@ module.exports = function(options) {
         stream.setMaxListeners(options.maxListeners);
       }
       stream.on('error', function(err) {
-        throw err;
+        throw new gutil.PluginError('gulp-jade-usemin', err.message);
+        console.log(err);
       });
       stream.on('data', writeNewFile);
       stream.on('end', function() {
