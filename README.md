@@ -1,4 +1,6 @@
 # gulp-jade-usemin
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/niftylettuce/gulp-jade-usemin.svg)](https://greenkeeper.io/)
 > Replaces references to non-optimized scripts or stylesheets into a set of Jade files (or any templates/views).
 
 This task is designed for gulp 3.
